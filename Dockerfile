@@ -1,17 +1,12 @@
-FROM tutum/apache-php:latest
+FROM ubuntu:14.04
 MAINTAINER Jechiy <773372347@qq.com>
 WORKDIR /
-RUN apt-get update && \
-    apt-get -yq install mysql-client curl && \
-    rm -rf /app && \
-    curl -0L https://dn-downfile.qbox.me/html5-mario.tar.gz | tar zxv && \
-    mv /blog /app && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y nginx zip curl
 
-RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
-RUN a2enmod rewrite
-ADD run.sh /run.sh
-RUN chmod +x /*.sh
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN curl -o /usr/share/nginx/html/html5-mario.zip -L https://dn-downfile.qbox.me/html5-mario.zip
+RUN cd /usr/share/nginx/html/ && unzip html5-mario.zip && mv blog/* . && rm -rf blog html5-mario.zip
 
 EXPOSE 80
-CMD ["/run.sh"]
+CMD ["/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf"]
